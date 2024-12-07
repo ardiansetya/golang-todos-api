@@ -5,33 +5,33 @@ import (
 	"go-todo/models"
 	"log"
 	"os"
-
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
+var DB *gorm.DB
 
-var DB  *gorm.DB
-
-func ConnectDatabase(){
-	err := godotenv.Load(".env")
+func ConnectDatabase() {
+	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file") //error tp tetep jalan
+		log.Fatal("Error loading .env file")
 	}
 
 	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASS")
-	dbName := os.Getenv("DB_NAME")
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
+	pass := os.Getenv("DB_PASS")
+	dbname := os.Getenv("DB_NAME")
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
 
-	// dsn := "root:root@tcp(127.0.0.1:3306)/golang_todo?charset=utf8mb4&parseTime=True&loc=Local"
+	// dsn := user + ":" + pass + "@tcp(" + host + ":" + port + ")/" + dbname + "?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		user, pass, host, port, dbname)
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, password, dbHost, dbPort, dbName)
-	DB, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
 	if err != nil {
-		panic("Failed to connect to database") //error aplikasi berhenti
+		panic("Failed to connect to database!")
 	}
 
 	DB.AutoMigrate(models.Todo{})
